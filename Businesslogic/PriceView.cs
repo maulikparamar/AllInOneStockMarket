@@ -1,5 +1,6 @@
 ﻿using AllinOneStock.Businesslogic;
 using AllinOneStock.Models;
+using AllInOneStockMarket.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -104,7 +105,7 @@ namespace AllInOneStockMarket.Businesslogic
         }
 
         // Pending
-        public ItemScrip getScriDetails(string tokenId)
+        public ScripModel getScriDetails(string tokenId)
         {
             try
             {

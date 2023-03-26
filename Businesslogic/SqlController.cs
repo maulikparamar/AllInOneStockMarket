@@ -11,13 +11,11 @@ namespace AllinOneStock.Businesslogic
     public class SqlController
     {
         private SqlConnection SqlConnection;
-
         public SqlController()
         {
             SqlConnection = new SqlConnection();
             SqlConnection.ConnectionString = Startup.sqlConnectionString;
         }
-
         public SqlDataReader selectQuery(string tableName,string key,string value)
         {
             SqlConnection.Open();

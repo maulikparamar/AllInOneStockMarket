@@ -2,10 +2,13 @@
 using AllinOneStock.Models;
 using AllInOneStockMarket.Businesslogic;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 
@@ -15,6 +18,9 @@ namespace AllinOneStock.Controllers
     [Route("[controller]")]
     public class AllInOneStockController : ControllerBase
     {
+        private readonly Authentication authentication = new Authentication();
+        private readonly PriceView priceView = new PriceView();
+        private readonly Orders orders = new Orders();
         private readonly ILogger<AllInOneStockController> _logger;
 
         public AllInOneStockController(ILogger<AllInOneStockController> logger)
@@ -25,77 +31,153 @@ namespace AllinOneStock.Controllers
         [HttpPost("Authentication")]
         public ActionResult<string> postAuthentication(CredentialModel credential)
         {
-            Authentication authentication = new Authentication();
-            string result =  authentication.authentication(credential);
-            return result;
+            try
+            {
+                string result = authentication.authentication(credential);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
         [HttpPost("ChangePassword")]
         public ActionResult<string> postChangePassword(ChangePasswordModel credential)
         {
-            Authentication authentication = new Authentication();
-            string result = authentication.changePassword(credential);
-            return result;
+            try
+            {
+                string result = authentication.changePassword(credential);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
         [HttpPost("ChangeVerificationCode")]
         public ActionResult<string> postChangeVerificationCode(ChangeVerificationModel credential)
         {
-            Authentication authentication = new Authentication();
-            string result = authentication.changeVerifiationCode(credential);
-            return result;
+            try
+            {
+                string result = authentication.changeVerifiationCode(credential);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
         [HttpPost("GetAllPriceView")]
         [Authorize]
         public ActionResult<List<PriceViewsList>> postPriceView()
         {
-            string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
-            PriceView priceView = new PriceView();
-            List<PriceViewsList> result = priceView.getPriceViewAll(name);
-            return result;
+            try
+            {
+                string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                List<PriceViewsList> result = priceView.getPriceViewAll(name);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
         [HttpPut("UppdatePriceView")]
         [Authorize]
-        public ActionResult updatePiceView(PriceViewsList priceView)
+        public ActionResult updatePiceView(PriceViewsList priceViewList)
         {
-            string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
-            PriceView priceView1 = new();
-            priceView1.updatePriceView(name, priceView);
-            return Ok();
+            try
+            {
+                string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                priceView.updatePriceView(name, priceViewList);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
         [HttpPost("DeletePriceView")]
         public ActionResult deletepriceview(string priceviewname)
         {
-            string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
-            PriceView priceview1 = new();
-            priceview1.deletePriceView(name, priceviewname);
-            return Ok();
+            try
+            {
+                string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                priceView.deletePriceView(name, priceviewname);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
         [HttpPost("GetScripDetails")]
         public ActionResult getScripDetails(string tokenId)
         {
-            PriceView priceview = new();
-            ItemScrip item = priceview.getScriDetails(tokenId);
-            return Ok(item);
+            try
+            {
+                ItemScrip item = priceView.getScriDetails(tokenId);
+                return Ok(item);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
-        public ActionResult getAllOrders()
+        public ActionResult getAllOrders(string clientId)
         {
-            return null;
+            try
+            {
+                List<OrderModel> orderModels = orders.getAllOrders(clientId);
+                return Ok(orderModels);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
-        public ActionResult deleteOrder()
+        public ActionResult deleteOrder(string clientId, int orderId)
         {
-            return null;
+            try
+            {
+                orders.deleteOrder(clientId, orderId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
-        public ActionResult marketOrder()
+        public ActionResult createOrder()
         {
-            return null;
+            try
+            {
+                orders.createOrder();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
     }
 }
