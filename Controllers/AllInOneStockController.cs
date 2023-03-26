@@ -1,6 +1,7 @@
 ﻿using AllinOneStock.Businesslogic;
 using AllinOneStock.Models;
 using AllInOneStockMarket.Businesslogic;
+using AllInOneStockMarket.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,7 @@ namespace AllinOneStock.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AllInOneStockController : ControllerBase
+    public class AllInOneStockController : Controller
     {
         private readonly Authentication authentication = new Authentication();
         private readonly PriceView priceView = new PriceView();
@@ -128,7 +129,7 @@ namespace AllinOneStock.Controllers
         {
             try
             {
-                ItemScrip item = priceView.getScriDetails(tokenId);
+                ScripModel item = priceView.getScriDetails(tokenId);
                 return Ok(item);
             }
             catch (Exception ex)
@@ -166,11 +167,11 @@ namespace AllinOneStock.Controllers
             }
         }
 
-        public ActionResult createOrder()
+        public ActionResult createOrder(OrderModel model)
         {
             try
             {
-                orders.createOrder();
+                orders.createOrder(model);
                 return Ok();
             }
             catch (Exception ex)
@@ -178,6 +179,12 @@ namespace AllinOneStock.Controllers
                 Debug.WriteLine(ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
+        }
+
+        [HttpGet("LoginPage")]
+        public ActionResult getLoginPage()
+        {
+            return View("~/Views/Login_view.cshtml");
         }
     }
 }

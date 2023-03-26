@@ -55,10 +55,9 @@ namespace AllInOneStockMarket.Businesslogic
                 Dictionary<string, string> valuePairs = new();
                 valuePairs.Add("clientId", model.clientId.ToString());
                 valuePairs.Add("brokerId",model.brokerId.ToString());
-                valuePairs.Add("exchange",model.exchange.ToString());
+                valuePairs.Add("exchange",model.scripId.ToString());
                 valuePairs.Add("price",model.price.ToString());
                 valuePairs.Add("qty", model.qty.ToString());
-                valuePairs.Add("token", model.token);
                 int result = sql.insertQuery(SqlDatabaseTable.orders, valuePairs);
                 return result;
             }catch(Exception ex)
