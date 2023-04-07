@@ -22,24 +22,24 @@ namespace AllinOneStock.Businesslogic
                 
                 Dictionary<string, string> valuePairs = new Dictionary<string, string>();
 
-                valuePairs.Add("[client_id]", credential.UserName);
+                valuePairs.Add("[clientId]", credential.UserId);
 
                 SqlDataReader userDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
                 if (userDetails != null && userDetails.HasRows)
                 {
                     userDetails.Close();
-                    valuePairs.Add("[password]", credential.Password);
+                    valuePairs.Add("[clientPassword]", credential.Password);
                     SqlDataReader passwordDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
 
                     if (passwordDetails != null && passwordDetails.HasRows)
                     {
                         passwordDetails.Close();
-                        valuePairs.Add("[verification__code]", credential.VerificationCode.ToString());
+                        valuePairs.Add("[clientVerificationCode]", credential.VerificationCode.ToString());
                         SqlDataReader verificationDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
                         if (verificationDetails != null && verificationDetails.HasRows)
                         {
                             verificationDetails.Close();
-                            valuePairs.Add("[type]", ((Int16)credential.type).ToString());
+                            valuePairs.Add("[clientType]", ((Int16)credential.type).ToString());
                             SqlDataReader typeDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
                             if (typeDetails != null && typeDetails.HasRows)
                             {
@@ -152,13 +152,13 @@ namespace AllinOneStock.Businesslogic
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new[]
                         {
-                new Claim(ClaimTypes.NameIdentifier,credential.UserName),
+                new Claim(ClaimTypes.NameIdentifier,credential.UserId),
                 new Claim(ClaimTypes.Role,credential.type.ToString()),
             };
-            var token = new JwtSecurityToken(Startup.JwtIssuer,
-                Startup.JwtAudience,
+            var token = new JwtSecurityToken(null,
+                null,
                 claims,
-                expires: DateTime.Now.AddMinutes(15),
+                expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: credentials);
 
 

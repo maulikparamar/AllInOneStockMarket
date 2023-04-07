@@ -75,12 +75,13 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("GetAllPriceView")]
-        [Authorize]
-        public ActionResult<List<PriceViewsList>> postPriceView()
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        public ActionResult<List<PriceViewsList>> postPriceView(string clientId)
         {
             try
             {
                 string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                if (name != clientId) return Unauthorized();
                 List<PriceViewsList> result = priceView.getPriceViewAll(name);
                 return result;
             }
@@ -91,7 +92,7 @@ namespace AllinOneStock.Controllers
             }
         }
 
-        [HttpPut("UppdatePriceView")]
+        [HttpPost("UppdatePriceView")]
         [Authorize]
         public ActionResult updatePiceView(PriceViewsList priceViewList)
         {
@@ -139,6 +140,7 @@ namespace AllinOneStock.Controllers
             }
         }
 
+        [HttpPost("GetAllOrders")]
         public ActionResult getAllOrders(string clientId)
         {
             try
@@ -153,6 +155,7 @@ namespace AllinOneStock.Controllers
             }
         }
 
+        [HttpPost("DeleteOrder")]
         public ActionResult deleteOrder(string clientId, int orderId)
         {
             try
@@ -167,6 +170,7 @@ namespace AllinOneStock.Controllers
             }
         }
 
+        [HttpPost("CreateOrder")]
         public ActionResult createOrder(OrderModel model)
         {
             try

@@ -4,7 +4,7 @@ namespace AllinOneStock.Models
 {
     public class CredentialModel
     {
-        public string UserName { get; set; }
+        public string UserId { get; set; }
         public string Password { get; set; }
         public Int16 VerificationCode { get; set; }
 

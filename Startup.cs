@@ -37,13 +37,18 @@ namespace AllInOneStockMarket
             Jwtkey = Configuration["Jwt:Key"];
             JwtIssuer = Configuration["Jwt:Issuer"];
             JwtAudience = Configuration["Jwt:Audience"];
+            services.AddControllersWithViews().AddRazorOptions(option =>
+            {// Add custom location to view search location
+                option.ViewLocationFormats.Add("~/Views/{0}.cshtml");
+            });
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = true,
+                    ValidateIssuer = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+                    ValidateAudience = false,
                     ValidIssuer = Configuration["Jwt:Issuer"],
                     ValidAudience = Configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
@@ -53,6 +58,55 @@ namespace AllInOneStockMarket
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "AllInOneStockMarket", Version = "v1" });
+                //c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                //{
+                //     Name = "Authorization",
+                //     Type = SecuritySchemeType.ApiKey,
+                //     Scheme = "Bearer",
+                //     BearerFormat = "JWT",
+                //     In = ParameterLocation.Header,
+                //     Description = "Enter the Bearer Authorization string as following: `Bearer Generated-JWT-Token`"
+                //});
+                //c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                //{
+                //    new OpenApiSecurityScheme
+                //    {
+                //        Name = "Bearer",
+                //        In = ParameterLocation.Header,
+                //        Reference = new OpenApiReference
+                //        {
+                //            Type = ReferenceType.SecurityScheme,
+                //            Id = "Bearer"
+                //        }
+                //    },
+                //    new string[] {}
+                //    }
+                //});
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description =
+        "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+                    Name = "Authorization",
+                    //In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+{
+    {
+        new OpenApiSecurityScheme
+        {
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.SecurityScheme,
+                Id = "Bearer"
+            },
+          
+        },
+        new List<string>()
+    }
+});
             });
         }
 
@@ -66,10 +120,10 @@ namespace AllInOneStockMarket
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AllInOneStockMarket v1"));
             }
 
-           // app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseStatusCodePages();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

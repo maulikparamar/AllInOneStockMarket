@@ -6,10 +6,10 @@
         {
             public static string blogger = "[AllInOneMakert].[dbo].[blogger]";
             public static string index = "[AllInOneMakert].[dbo].[index]";
-            public static string priceView = "[AllInOneMakert].[dbo].[priceview]";
-            public static string user_details = "[AllInOneMakert].[dbo].[user_details]";
-            public static string scrip_details = "[AllInOneMakert].[dbo].[scripDetails]";
-            public static string orders = "[AllInOneMakert].[dbo].[orders]";
+            public static string priceView = "[AllInOneMakert].[dbo].[PriceViewDetails]";
+            public static string user_details = "[AllInOneMakert].[dbo].[ClientDetails]";
+            public static string scrip_details = "[AllInOneMakert].[dbo].[ScripDetails]";
+            public static string orders = "[AllInOneMakert].[dbo].[OrderDetails]";
         }
     }
 }
