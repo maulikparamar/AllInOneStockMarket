@@ -20,17 +20,18 @@ namespace AllInOneStockMarket.Businesslogic
             {
                 SqlController controller = new SqlController();
                 Dictionary<string, string> valuePairs = new();
-                valuePairs.Add("[client_id]", clientId);
+                valuePairs.Add(PriceViewDetailsColumnName.client_id, clientId);
                 SqlDataReader dataReader = controller.selectConditionQuery(null, SqlDatabaseTable.priceView, valuePairs);
                 if (dataReader != null && dataReader.HasRows)
                 {
                     while (dataReader.Read())
                     {
                         PriceViewsList priceViews = new();
-                        priceViews.PriceViewName = dataReader["priceview_name"].ToString();
-                        priceViews.ScripsList = getListItemScrips(dataReader["priceview_list"].ToString().Split(",").ToList());
+                        priceViews.PriceViewName = dataReader["priceViewName"].ToString();
+                        priceViews.ScripsList = getListItemScrips(dataReader["scrip_list"].ToString().Split(",").ToList());
                         list.Add(priceViews);
                     }
+                    return list;
                 }
             }catch(Exception ex)
             {
@@ -45,8 +46,8 @@ namespace AllInOneStockMarket.Businesslogic
             {
                 SqlController controller = new SqlController();
                 Dictionary<string, string> valuePairs = new();
-                valuePairs.Add("[client_id]", userName);
-                valuePairs.Add("[priceview_name]", priceView);
+                valuePairs.Add(PriceViewDetailsColumnName.client_id, userName);
+                valuePairs.Add(PriceViewDetailsColumnName.priceViewName, priceView);
                 controller.deleteQuery(SqlDatabaseTable.priceView, valuePairs);
             }catch(Exception ex)
             {
@@ -54,16 +55,16 @@ namespace AllInOneStockMarket.Businesslogic
             }
         }
 
-        public int updatePriceView(string userName, PriceViewsList priceview)
+        public int updatePriceView(string userName, UpdatePriceViewsList priceview)
         {
             try
             {
                 SqlController controller = new SqlController();
                 Dictionary<string, string> valuePairs = new();
-                valuePairs.Add("[client_id]", userName);
-                valuePairs.Add("[priceview_name]", priceview.PriceViewName);
-                valuePairs.Add("[ScripName]", String.Join("," ,priceview.ScripsList));
-                controller.insertOrUpdateQuery(SqlDatabaseTable.priceView, valuePairs, "[priceview_name]",priceview.PriceViewName);
+                valuePairs.Add(PriceViewDetailsColumnName.client_id, userName);
+                valuePairs.Add(PriceViewDetailsColumnName.priceViewName, priceview.PriceViewName);
+                valuePairs.Add(PriceViewDetailsColumnName.scripList, String.Join("," ,priceview.ScripsList));
+                controller.insertOrUpdateQuery(SqlDatabaseTable.priceView, valuePairs, PriceViewDetailsColumnName.priceViewName,priceview.PriceViewName);
                 return 0;
             }
             catch (Exception ex)
@@ -73,27 +74,20 @@ namespace AllInOneStockMarket.Businesslogic
             return -1;
         }
 
-        public List<ItemScrip> GetScripList(string scripName)
+        public List<ItemScrip> GetScripList(string token)
         {
             List<ItemScrip> list = new();
             try
             {
                 SqlController controller = new SqlController();
                 Dictionary<string, string> valuePairs = new();
-                valuePairs.Add("[ScripName]", scripName);
+                valuePairs.Add(ScripDetailsColumnName.token, token);
                 SqlDataReader dataReader = controller.selectConditionQuery(null, SqlDatabaseTable.scrip_details, valuePairs);
                 if (dataReader != null && dataReader.HasRows)
                 {
                     while (dataReader.Read())
                     {
-                        list.Add(new ItemScrip()
-                        {
-                            ScripName = dataReader["ScripName"].ToString(),
-                            Exchange = (Exchange)Convert.ToInt16(dataReader["Exchange"].ToString()),
-                            Close = Convert.ToDouble(dataReader["scrip_close"].ToString()),
-                            Ltp = Convert.ToDouble(dataReader["scrip_ltp"].ToString()),
-                            Token = Convert.ToInt16(dataReader["ScripCode"].ToString())
-                        });
+                        list.Add(new ItemScrip(dataReader));
                     }
                 }
             }
@@ -104,20 +98,21 @@ namespace AllInOneStockMarket.Businesslogic
             return new();
         }
 
-        // Pending
-        public ScripModel getScriDetails(string tokenId)
+        public ScripModel getScriDetails(string token)
         {
             try
             {
                 SqlController controller = new SqlController();
+                //string exchange = new String(tokenId.Where(Char.IsLetter).ToArray());
+                //string token = new String(tokenId.Where(Char.IsDigit).ToArray());
                 Dictionary<string, string> valuePairs = new();
-                //valuePairs.Add("[client_id]", clientId);
+                valuePairs.Add(ScripDetailsColumnName.token, token);
                 SqlDataReader dataReader = controller.selectConditionQuery(null, SqlDatabaseTable.priceView, valuePairs);
                 if (dataReader != null && dataReader.HasRows)
                 {
                     while (dataReader.Read())
                     {
-         ////////sdfjsdhfkjsdhfjk
+                        return new ScripModel(dataReader);
                     }
                 }
             }
@@ -141,25 +136,17 @@ namespace AllInOneStockMarket.Businesslogic
             {
                 SqlController controller = new SqlController();
                 Dictionary<string, string> valuePairs = new();
-                foreach(var i in listTokens)
-                {
-                    string exchange = new String(i.Where(Char.IsLetter).ToArray());
-                    string token = new String(i.Where(Char.IsDigit).ToArray());
-                    valuePairs.Add("[Exchange]",exchange);
-                    valuePairs.Add("[ScripCode]", token);
-                }
-                SqlDataReader dataReader = controller.selectConditionQuery(null, SqlDatabaseTable.scrip_details, valuePairs);
+                //foreach(var token in listTokens)
+                //{
+                //    valuePairs.Add(ScripDetailsColumnName.token, token);
+                //}
+                valuePairs.Add(ScripDetailsColumnName.token, String.Join(",", listTokens));
+                SqlDataReader dataReader = controller.selectCondition_multiplevalue_In_Query(null, SqlDatabaseTable.scrip_details, valuePairs);
                 if (dataReader != null && dataReader.HasRows)
                 {
                     while (dataReader.Read())
                     {
-                        items.Add(new ItemScrip() { 
-                            ScripName = dataReader["ScripName"].ToString(),
-                            Exchange = (Exchange)Convert.ToInt16(dataReader["Exchange"].ToString()),
-                            Close = Convert.ToDouble(dataReader["scrip_close"].ToString()),
-                            Ltp = Convert.ToDouble(dataReader["scrip_ltp"].ToString()),
-                            Token = Convert.ToInt16(dataReader["ScripCode"].ToString()) 
-                        });
+                        items.Add(new ItemScrip(dataReader));
                     }
                 }
             }

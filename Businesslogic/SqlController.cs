@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 
 namespace AllinOneStock.Businesslogic
@@ -38,9 +39,9 @@ namespace AllinOneStock.Businesslogic
             //}
             return null;
         }
-        public SqlDataReader selectConditionQuery(List<string>? fileds,string tableName,Dictionary<string, string> valuePairs)
+        public SqlDataReader selectConditionQuery(List<string>? fileds, string tableName, Dictionary<string, string> valuePairs)
         {
-            if(SqlConnection.State == ConnectionState.Closed)
+            if (SqlConnection.State == ConnectionState.Closed)
             {
                 SqlConnection.Open();
             }
@@ -58,13 +59,13 @@ namespace AllinOneStock.Businesslogic
             var i = 0;
             foreach (KeyValuePair<string, string> d in valuePairs)
             {
-                if(i == 0)
+                if (i == 0)
                 {
                     condition += d.Key + "= '" + d.Value + "'";
                 }
                 else
                 {
-                    condition += " and " + d.Key + "= '"+ d.Value+"'";
+                    condition += " and " + d.Key + "= '" + d.Value + "'";
                 }
                 i++;
             }
@@ -82,7 +83,56 @@ namespace AllinOneStock.Businesslogic
             }
             //finally
             //{
-              
+
+            //  //  SqlConnection.Close();
+            //}
+            return null;
+        }
+        public SqlDataReader selectCondition_multiplevalue_In_Query(List<string>? fileds, string tableName, Dictionary<string, string> valuePairs)
+        {
+            if (SqlConnection.State == ConnectionState.Closed)
+            {
+                SqlConnection.Open();
+            }
+            SqlDataReader dataReader;
+            string filed = "";
+            if (fileds != null)
+            {
+                string.Join(",", fileds);
+            }
+            else
+            {
+                filed = "*";
+            }
+            string condition = "";
+            var i = 0;
+            foreach (KeyValuePair<string, string> d in valuePairs)
+            {
+                if (i == 0)
+                {
+                    condition += d.Key + "in ('" + d.Value + "')";
+                }
+                else
+                {
+                    condition += " and " + d.Key + "in ('" + d.Value + "')";
+                }
+                i++;
+            }
+            string query = "select " + filed + " from " + tableName + " where " + condition + "";
+            try
+            {
+                SqlCommand command = new SqlCommand(query, SqlConnection);
+                dataReader = command.ExecuteReader(CommandBehavior.CloseConnection);
+                // command.Dispose();
+                return dataReader;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            //finally
+            //{
+
             //  //  SqlConnection.Close();
             //}
             return null;
@@ -146,8 +196,8 @@ namespace AllinOneStock.Businesslogic
                 else
                 {
                     var columns = string.Join(",", valuePairs.Keys);
-                    var values = string.Join(",", valuePairs.Values);
-                    var insertQuery = "insert into " + tableName + " (" + columns + ") values " + values + "";
+                    var values = string.Join("','", valuePairs.Values);
+                    var insertQuery = "insert into " + tableName + " (" + columns + ") values ('" + values + "')";
                     SqlCommand command = new SqlCommand(insertQuery, SqlConnection);
                     command.Dispose();
                     return command.ExecuteNonQuery();
@@ -155,7 +205,7 @@ namespace AllinOneStock.Businesslogic
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
             }
             finally
             {

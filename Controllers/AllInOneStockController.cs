@@ -76,7 +76,7 @@ namespace AllinOneStock.Controllers
 
         [HttpPost("GetAllPriceView")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        public ActionResult<List<PriceViewsList>> postPriceView(string clientId)
+        public ActionResult<List<PriceViewsList>> postAllPriceView(string clientId)
         {
             try
             {
@@ -92,14 +92,18 @@ namespace AllinOneStock.Controllers
             }
         }
 
-        [HttpPost("UppdatePriceView")]
-        [Authorize]
-        public ActionResult updatePiceView(PriceViewsList priceViewList)
+        [HttpPost("UpdatePriceView")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        public ActionResult updatePiceView(UpdatePriceViewsList priceViewList)
         {
             try
             {
                 string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
-                priceView.updatePriceView(name, priceViewList);
+                int result = priceView.updatePriceView(name, priceViewList);
+                if(result == -1)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "Bad Request");
+                }
                 return Ok();
             }
             catch (Exception ex)
@@ -110,6 +114,7 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("DeletePriceView")]
+       // [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult deletepriceview(string priceviewname)
         {
             try
@@ -126,6 +131,7 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("GetScripDetails")]
+      //  [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult getScripDetails(string tokenId)
         {
             try
@@ -141,6 +147,7 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("GetAllOrders")]
+    //    [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult getAllOrders(string clientId)
         {
             try
@@ -156,6 +163,7 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("DeleteOrder")]
+     //   [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult deleteOrder(string clientId, int orderId)
         {
             try
@@ -171,6 +179,7 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("CreateOrder")]
+     //   [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult createOrder(OrderModel model)
         {
             try

@@ -21,25 +21,25 @@ namespace AllinOneStock.Businesslogic
                 SqlController sql = new SqlController();
                 
                 Dictionary<string, string> valuePairs = new Dictionary<string, string>();
-
-                valuePairs.Add("[clientId]", credential.UserId);
+                
+                valuePairs.Add(ClientDetailsColumnName.client_id, credential.UserId);
 
                 SqlDataReader userDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
                 if (userDetails != null && userDetails.HasRows)
                 {
                     userDetails.Close();
-                    valuePairs.Add("[clientPassword]", credential.Password);
+                    valuePairs.Add(ClientDetailsColumnName.client_password, credential.Password);
                     SqlDataReader passwordDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
 
                     if (passwordDetails != null && passwordDetails.HasRows)
                     {
                         passwordDetails.Close();
-                        valuePairs.Add("[clientVerificationCode]", credential.VerificationCode.ToString());
+                        valuePairs.Add(ClientDetailsColumnName.client_verification_code, credential.VerificationCode.ToString());
                         SqlDataReader verificationDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
                         if (verificationDetails != null && verificationDetails.HasRows)
                         {
                             verificationDetails.Close();
-                            valuePairs.Add("[clientType]", ((Int16)credential.type).ToString());
+                            valuePairs.Add(ClientDetailsColumnName.client_type, ((Int16)credential.type).ToString());
                             SqlDataReader typeDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
                             if (typeDetails != null && typeDetails.HasRows)
                             {
