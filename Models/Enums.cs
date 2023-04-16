@@ -32,12 +32,14 @@
         }
         public static class OrderDetailsColumnName
         {
+            public static string id = "[id]";
             public static string client_id = "[client_id]";
             public static string broker_id = "[broker_id]";
             public static string scrip_id = "[scrip_id]";
             public static string qty = "[qty]";
             public static string price = "[price]";
             public static string status = "[status]";
+            public static string buyorsell = "[buyorsell]";
         }
         public static class ScripDetailsColumnName
         {

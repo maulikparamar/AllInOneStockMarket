@@ -21,7 +21,7 @@ namespace AllinOneStock.Businesslogic
         {
             SqlConnection.Open();
             SqlDataReader dataReader;
-            string query = "select * from " + tableName + " where " + key + "=" + value + "";
+            string query = "select * from " + tableName + " where " + key + "= '" + value + "'";
             try
             {
                 SqlCommand sc = new SqlCommand(query, SqlConnection);
@@ -141,8 +141,8 @@ namespace AllinOneStock.Businesslogic
         {
             SqlConnection.Open();
             var columns = string.Join(",", valuePairs.Keys);
-            var values = string.Join(",", valuePairs.Values);
-            var query = "insert into " + tableName + " (" + columns + ") values " + values + "";
+            var values = string.Join("','", valuePairs.Values);
+            var query = "insert into " + tableName + " (" + columns + ") values ('" + values + "')";
             try
             {
                 SqlCommand command = new SqlCommand(query, SqlConnection);
@@ -188,7 +188,7 @@ namespace AllinOneStock.Businesslogic
                         i++;
                     }
 
-                    var updateQuery = "update set " + condition + " where " + columnName + "='" + valueCondition + "' ";
+                    var updateQuery = "update "+ tableName + " set " + condition + " where " + columnName + "='" + valueCondition + "' ";
                     SqlCommand command = new SqlCommand(updateQuery, SqlConnection);
                     command.Dispose();
                     return command.ExecuteNonQuery();
@@ -226,7 +226,7 @@ namespace AllinOneStock.Businesslogic
                 }
                 else
                 {
-                    condition += "," + d.Key + "= '" + d.Value + "'";
+                    condition += " and " + d.Key + "= '" + d.Value + "'";
                 }
                 i++;
             }

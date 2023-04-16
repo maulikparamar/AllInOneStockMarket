@@ -45,10 +45,14 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("ChangePassword")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+
         public ActionResult<string> postChangePassword(ChangePasswordModel credential)
         {
             try
             {
+                string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                if (name != credential.UserName) return Unauthorized();
                 string result = authentication.changePassword(credential);
                 return result;
             }
@@ -60,11 +64,40 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("ChangeVerificationCode")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+
         public ActionResult<string> postChangeVerificationCode(ChangeVerificationModel credential)
         {
             try
             {
+                string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                if (name != credential.UserName) return Unauthorized();
                 string result = authentication.changeVerifiationCode(credential);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost("GetAllBrokers")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        public ActionResult<List<ClientDetails>> postAllBrokers(string clientType)
+        {
+            try
+            {
+                string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                if (name == "") return Unauthorized();
+                userType user;
+                if(!Enum.TryParse(clientType,out user))
+                {
+                    return StatusCode(StatusCodes.Status404NotFound,"Not Found");
+                }
+
+
+                List<ClientDetails> result = authentication.getClientDetails(user);
                 return result;
             }
             catch (Exception ex)
@@ -114,7 +147,7 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("DeletePriceView")]
-       // [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult deletepriceview(string priceviewname)
         {
             try
@@ -131,7 +164,7 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("GetScripDetails")]
-      //  [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult getScripDetails(string tokenId)
         {
             try
@@ -147,12 +180,12 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("GetAllOrders")]
-    //    [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult getAllOrders(string clientId)
         {
             try
             {
-                List<OrderModel> orderModels = orders.getAllOrders(clientId);
+                List<getOrderModel> orderModels = orders.getAllOrders(clientId);
                 return Ok(orderModels);
             }
             catch (Exception ex)
@@ -163,7 +196,7 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("DeleteOrder")]
-     //   [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult deleteOrder(string clientId, int orderId)
         {
             try
@@ -179,7 +212,7 @@ namespace AllinOneStock.Controllers
         }
 
         [HttpPost("CreateOrder")]
-     //   [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult createOrder(OrderModel model)
         {
             try

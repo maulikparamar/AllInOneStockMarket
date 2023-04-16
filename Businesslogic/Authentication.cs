@@ -1,9 +1,11 @@
 ﻿using AllinOneStock.Models;
 using AllInOneStockMarket;
+using AllInOneStockMarket.Models;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
@@ -78,19 +80,19 @@ namespace AllinOneStock.Businesslogic
 
                 Dictionary<string, string> valuePairs = new Dictionary<string, string>();
 
-                valuePairs.Add("[client_id]", model.UserName);
+                valuePairs.Add(ClientDetailsColumnName.client_id, model.UserName);
                 SqlDataReader userDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
                 if (userDetails != null && userDetails.HasRows)
                 {
                     userDetails.Close();
-                    valuePairs.Add("[password]", model.Password);
+                    valuePairs.Add(ClientDetailsColumnName.client_password, model.Password);
                     SqlDataReader passwordDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
 
                     if (passwordDetails != null && passwordDetails.HasRows)
                     {
                         passwordDetails.Close();
-                        valuePairs.Add("[password]", model.NewPassword);
-                        sql.insertOrUpdateQuery(SqlDatabaseTable.user_details, valuePairs, "[client_id]", model.UserName);
+                        valuePairs[ClientDetailsColumnName.client_password] = model.NewPassword;
+                        sql.insertOrUpdateQuery(SqlDatabaseTable.user_details, valuePairs, ClientDetailsColumnName.client_id, model.UserName);
                         return "Successfully Changed Password";
                     }
                     else
@@ -116,19 +118,19 @@ namespace AllinOneStock.Businesslogic
 
                 Dictionary<string, string> valuePairs = new Dictionary<string, string>();
 
-                valuePairs.Add("[client_id]", model.UserName);
+                valuePairs.Add(ClientDetailsColumnName.client_id, model.UserName);
                 SqlDataReader userDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
                 if (userDetails != null && userDetails.HasRows)
                 {
                     userDetails.Close();
-                    valuePairs.Add("[verification__code]", model.VerificationCode.ToString());
+                    valuePairs.Add(ClientDetailsColumnName.client_verification_code, model.VerificationCode.ToString());
                     SqlDataReader passwordDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
 
                     if (passwordDetails != null && passwordDetails.HasRows)
                     {
                         passwordDetails.Close();
-                        valuePairs.Add("[verification__code]", model.NewVerificationCode.ToString());
-                        sql.insertOrUpdateQuery(SqlDatabaseTable.user_details, valuePairs, "[client_id]", model.UserName);
+                        valuePairs[ClientDetailsColumnName.client_verification_code] = model.NewVerificationCode.ToString();
+                        sql.insertOrUpdateQuery(SqlDatabaseTable.user_details, valuePairs, ClientDetailsColumnName.client_id, model.UserName);
                         return "Successfully Changed Verification Code";
                     }
                     else
@@ -146,6 +148,36 @@ namespace AllinOneStock.Businesslogic
                 return ex.Message;
             }
         }
+
+        public List<ClientDetails> getClientDetails(userType type)
+        {
+            List<ClientDetails> list = new();
+            try
+            {
+                SqlController controller = new SqlController();
+                Dictionary<string, string> valuePairs = new();
+                valuePairs.Add(ClientDetailsColumnName.client_type, ((int)type).ToString());
+                SqlDataReader dataReader = controller.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
+                if (dataReader != null && dataReader.HasRows)
+                {
+                    while (dataReader.Read())
+                    {
+                        ClientDetails clientDetails = new();
+                        clientDetails.client_id = dataReader["clientId"].ToString();
+                        clientDetails.client_name = dataReader["clientName"].ToString();
+                        clientDetails.client_phoneno = Convert.ToInt64(dataReader["clientPhoneNo"].ToString());
+                        list.Add(clientDetails);
+                    }
+                    return list;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            return new();
+        }
+
         private string GenerateToken(CredentialModel credential)
         {
             var securityKey =   new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Startup.Jwtkey));

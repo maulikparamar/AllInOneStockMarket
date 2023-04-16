@@ -7,7 +7,7 @@ namespace AllinOneStock.Models
 {
     public class PriceViewsList
     {
-        public int client_id { get; set; }
+        public string client_id { get; set; }
         public string PriceViewName { get; set; }
         public List<ItemScrip> ScripsList { get; set; } = new List<ItemScrip>();
     }

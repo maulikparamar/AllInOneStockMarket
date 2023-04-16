@@ -30,6 +30,7 @@ namespace AllinOneStock.Models
     public enum userType{
         Admin = 0,
         Client = 1,
-        PortfolioManager = 2
+        PortfolioManager = 2,
+        Broker = 4
     }
 }

@@ -27,6 +27,7 @@ namespace AllInOneStockMarket.Businesslogic
                     while (dataReader.Read())
                     {
                         PriceViewsList priceViews = new();
+                        priceViews.client_id = clientId;
                         priceViews.PriceViewName = dataReader["priceViewName"].ToString();
                         priceViews.ScripsList = getListItemScrips(dataReader["scrip_list"].ToString().Split(",").ToList());
                         list.Add(priceViews);
@@ -107,7 +108,7 @@ namespace AllInOneStockMarket.Businesslogic
                 //string token = new String(tokenId.Where(Char.IsDigit).ToArray());
                 Dictionary<string, string> valuePairs = new();
                 valuePairs.Add(ScripDetailsColumnName.token, token);
-                SqlDataReader dataReader = controller.selectConditionQuery(null, SqlDatabaseTable.priceView, valuePairs);
+                SqlDataReader dataReader = controller.selectConditionQuery(null, SqlDatabaseTable.scrip_details, valuePairs);
                 if (dataReader != null && dataReader.HasRows)
                 {
                     while (dataReader.Read())
@@ -140,7 +141,7 @@ namespace AllInOneStockMarket.Businesslogic
                 //{
                 //    valuePairs.Add(ScripDetailsColumnName.token, token);
                 //}
-                valuePairs.Add(ScripDetailsColumnName.token, String.Join(",", listTokens));
+                valuePairs.Add(ScripDetailsColumnName.token, String.Join("','", listTokens));
                 SqlDataReader dataReader = controller.selectCondition_multiplevalue_In_Query(null, SqlDatabaseTable.scrip_details, valuePairs);
                 if (dataReader != null && dataReader.HasRows)
                 {
