@@ -11,6 +11,12 @@ namespace AllinOneStock.Models
         public userType type { get; set; }
     }
 
+    public class CredentialResponseModel
+    {
+        public string msg { get; set; }
+        public bool goodorbadresponse { get; set; }
+    }
+
     public class ChangePasswordModel
     {
         public string UserName { get; set; }

@@ -16,7 +16,7 @@ namespace AllinOneStock.Businesslogic
 {
     public class Authentication
     {
-        public string authentication(CredentialModel credential)
+        public CredentialResponseModel authentication(CredentialModel credential)
         {
             try
             {
@@ -45,34 +45,34 @@ namespace AllinOneStock.Businesslogic
                             SqlDataReader typeDetails = sql.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
                             if (typeDetails != null && typeDetails.HasRows)
                             {
-                                return GenerateToken(credential);
+                                return new CredentialResponseModel() { msg = GenerateToken(credential) , goodorbadresponse = true};
                             }
                             else
                             {
-                                return "Wrong Type";
+                                return new CredentialResponseModel() { msg = "Wrong Type" ,goodorbadresponse = false};
                             }
                         }
                         else
                         {
-                            return "Wrong Verification Code";
+                            return new CredentialResponseModel() { msg = "Wrong Verification Code", goodorbadresponse = false };
                         }
                     }
                     else
                     {
-                        return "wrong password";
+                        return new CredentialResponseModel() { msg = "wrong password", goodorbadresponse = false };
                     }
                 }
                 else
                 {
-                    return "Username Unavailable";
+                    return new CredentialResponseModel() { msg = "Username Unavailable", goodorbadresponse = false };
                 }
             }catch(Exception ex)
             {
-                return ex.Message;
+                return new CredentialResponseModel() { msg = ex.Message ,goodorbadresponse = false};
             }
         }
 
-        public string changePassword(ChangePasswordModel model)
+        public CredentialResponseModel changePassword(ChangePasswordModel model)
         {
             try
             {
@@ -93,24 +93,24 @@ namespace AllinOneStock.Businesslogic
                         passwordDetails.Close();
                         valuePairs[ClientDetailsColumnName.client_password] = model.NewPassword;
                         sql.insertOrUpdateQuery(SqlDatabaseTable.user_details, valuePairs, ClientDetailsColumnName.client_id, model.UserName);
-                        return "Successfully Changed Password";
+                        return new CredentialResponseModel() { msg = "Successfully Changed Password", goodorbadresponse = true };
                     }
                     else
                     {
-                        return "Wrong Password";
+                        return new CredentialResponseModel() { msg = "Wrong Password", goodorbadresponse = false };
                     }
                 }
                 else
                 {
-                    return "Wrong UserName";
+                    return new CredentialResponseModel() { msg = "Wrong UserName", goodorbadresponse = false };
                 }
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                return new CredentialResponseModel() { msg = ex.Message, goodorbadresponse = false };
             }
         }
-        public string changeVerifiationCode(ChangeVerificationModel model)
+        public CredentialResponseModel changeVerifiationCode(ChangeVerificationModel model)
         {
             try
             {
@@ -131,21 +131,21 @@ namespace AllinOneStock.Businesslogic
                         passwordDetails.Close();
                         valuePairs[ClientDetailsColumnName.client_verification_code] = model.NewVerificationCode.ToString();
                         sql.insertOrUpdateQuery(SqlDatabaseTable.user_details, valuePairs, ClientDetailsColumnName.client_id, model.UserName);
-                        return "Successfully Changed Verification Code";
+                        return new CredentialResponseModel() { msg = "Successfully Changed Verification Code", goodorbadresponse = true };
                     }
                     else
                     {
-                        return "Wrong Verification Code";
+                        return new CredentialResponseModel() { msg = "Wrong Verification Code", goodorbadresponse = false };
                     }
                 }
                 else
                 {
-                    return "Wrong UserName";
+                    return new CredentialResponseModel() { msg = "Wrong UserName", goodorbadresponse = false };
                 }
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                return new CredentialResponseModel() { msg = ex.Message, goodorbadresponse = false };
             }
         }
 

@@ -17,41 +17,45 @@
 </head>
 <body>
     <div>
-        <form id="contactForm1">
+        <form id="authenticationForm">
             <label for="userId">Enter UserId</label>
-            <input id="userId" class="form-control" name="UserId" type="text" />
+            <input id="userId" class="form-control" name="userId" type="text" />
             <label for="userId">Enter Password</label>
             <input id="password" class="form-control" name="Password" type="password" />
             <label for="userId">Enter Verification Code</label>
             <input id="verificationcode" class="form-control" name="VerificationCode" type="number" />
-            <input id="userType" name="type" value="0" hidden />
+            <input id="userType" name="type" value="4" hidden />
         </form>
-        <button id="submit" onclick="contactForm1Click()" class="btn btn-primary">submit</button>
+        <button id="submit" onclick="authenticationFormBtnClick()" class="btn btn-primary">submit</button>
+
+        <h3 id="errormsg">asd</h3>
     </div>
 
     <script type="text/javascript">
 
-        function convertFormToJSON(form) {
-            return $(form)
-                .serializeArray()
-                .reduce(function (json, { name, value }) {
-                    json[name] = value;
-                    return json;
-                }, {});
-        }
+        function authenticationFormBtnClick() {
+            var authentication = {
+                userId: document.getElementById("userId").value,
+                password: document.getElementById("password").value,
+                verificationCode: document.getElementById("verificationcode").value,
+                type: document.getElementById("userType").value
+            }
 
-        function contactForm1Click() {
-            console.log(convertFormToJSON($('#contactForm1')));
             $.ajax({
                 url: 'Authentication',
                 type: 'POST',
                // async: false,
-                dataType: 'json',
+                dataType: 'text',
                 processData: false,
                 contentType: "application/json; charset=utf-8",
-                data: convertFormToJSON($('#contactForm1')),
+                data: JSON.stringify(authentication),
                 success: function (res) {
                     console.log(res);
+                    localStorage.setItem("jwt", res)
+                    window.location.href = "/AllInOneStock/DashBoard"
+                },
+                error: function (res) {
+                    document.getElementById('errormsg').innerHTML = res.responseText
                 }
             });
         }

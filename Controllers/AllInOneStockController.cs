@@ -31,12 +31,19 @@ namespace AllinOneStock.Controllers
 
         #region client-side
         [HttpPost("Authentication")]
-        public ActionResult<string> postAuthentication(CredentialModel credential)
+        public ActionResult<string> postAuthentication([FromBody] CredentialModel credential)
         {
             try
             {
-                string result = authentication.authentication(credential);
-                return result;
+                CredentialResponseModel result = authentication.authentication(credential);
+                if (result.goodorbadresponse)
+                {
+                    return result.msg;
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, result.msg);
+                }
             }
             catch (Exception ex)
             {
@@ -53,8 +60,15 @@ namespace AllinOneStock.Controllers
             {
                 string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
                 if (name != credential.UserName) return Unauthorized();
-                string result = authentication.changePassword(credential);
-                return result;
+                CredentialResponseModel result = authentication.changePassword(credential);
+                if (result.goodorbadresponse)
+                {
+                    return result.msg;
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, result.msg);
+                }
             }
             catch (Exception ex)
             {
@@ -71,8 +85,15 @@ namespace AllinOneStock.Controllers
             {
                 string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
                 if (name != credential.UserName) return Unauthorized();
-                string result = authentication.changeVerifiationCode(credential);
-                return result;
+                CredentialResponseModel result = authentication.changeVerifiationCode(credential);
+                if (result.goodorbadresponse)
+                {
+                    return result.msg;
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, result.msg);
+                }
             }
             catch (Exception ex)
             {
@@ -257,6 +278,22 @@ namespace AllinOneStock.Controllers
         public ActionResult getLoginPage()
         {
             return View("~/Views/Login_view.cshtml");
+        }
+
+        [HttpGet("DashBoard")]
+        public ActionResult getDashBoard()
+        {
+            return View("~/Views/DashBoard.cshtml");
+        }
+        [HttpGet("ClientList")]
+        public ActionResult getClientList()
+        {
+            return View("~/Views/ClientList_view.cshtml");
+        }
+        [HttpGet("OrdersList")]
+        public ActionResult getOrdersList()
+        {
+            return View("~/Views/OrdersList_view.cshtml");
         }
         #endregion
     }

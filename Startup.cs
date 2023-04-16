@@ -46,9 +46,11 @@ namespace AllInOneStockMarket
             {
                 options.AddPolicy("AllowCors", policy =>
                  {
-                     policy.WithOrigins("localhost:44303").AllowAnyMethod().AllowAnyHeader();
-                 }); 
-            }); 
+                     policy.WithOrigins("localhost:44303").AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                 });
+            });
+       
+       
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -62,7 +64,7 @@ namespace AllInOneStockMarket
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
                 };
             });
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "AllInOneStockMarket", Version = "v1" });
