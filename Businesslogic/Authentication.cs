@@ -178,6 +178,7 @@ namespace AllinOneStock.Businesslogic
             return new();
         }
 
+
         private string GenerateToken(CredentialModel credential)
         {
             var securityKey =   new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Startup.Jwtkey));

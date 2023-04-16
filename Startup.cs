@@ -41,6 +41,14 @@ namespace AllInOneStockMarket
             {// Add custom location to view search location
                 option.ViewLocationFormats.Add("~/Views/{0}.cshtml");
             });
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowCors", policy =>
+                 {
+                     policy.WithOrigins("localhost:44303").AllowAnyMethod().AllowAnyHeader();
+                 }); 
+            }); 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -102,7 +110,7 @@ namespace AllInOneStockMarket
                 Type = ReferenceType.SecurityScheme,
                 Id = "Bearer"
             },
-          
+
         },
         new List<string>()
     }
@@ -121,7 +129,7 @@ namespace AllInOneStockMarket
             }
 
             // app.UseHttpsRedirection();
-
+            app.UseCors("AllowCors");
             app.UseRouting();
             app.UseStatusCodePages();
             app.UseAuthorization();

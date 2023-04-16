@@ -29,6 +29,7 @@ namespace AllinOneStock.Controllers
             _logger = logger;
         }
 
+        #region client-side
         [HttpPost("Authentication")]
         public ActionResult<string> postAuthentication(CredentialModel credential)
         {
@@ -46,7 +47,6 @@ namespace AllinOneStock.Controllers
 
         [HttpPost("ChangePassword")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-
         public ActionResult<string> postChangePassword(ChangePasswordModel credential)
         {
             try
@@ -65,7 +65,6 @@ namespace AllinOneStock.Controllers
 
         [HttpPost("ChangeVerificationCode")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-
         public ActionResult<string> postChangeVerificationCode(ChangeVerificationModel credential)
         {
             try
@@ -106,6 +105,9 @@ namespace AllinOneStock.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
+        
+
 
         [HttpPost("GetAllPriceView")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
@@ -226,11 +228,36 @@ namespace AllinOneStock.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+        #endregion
+
+
+        #region Server-side
+        //[HttpPost("GetAllBrokers")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+
+        [HttpPost("GetAllClient")]
+        public ActionResult<List<ClientDetails>> postAllClientList()
+        {
+            try
+            {
+                string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                if (name == "") return Unauthorized();
+
+                List<ClientDetails> result = authentication.getClientDetails(userType.Client);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
 
         [HttpGet("LoginPage")]
         public ActionResult getLoginPage()
         {
             return View("~/Views/Login_view.cshtml");
         }
+        #endregion
     }
 }
