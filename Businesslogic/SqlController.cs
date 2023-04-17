@@ -213,6 +213,54 @@ namespace AllinOneStock.Businesslogic
             }
             return -1;
         }
+        public Int32 updateQuery(string tableName, Dictionary<string, string> valuePairs, string columnName, string valueCondition)
+        {
+            SqlConnection.Open();
+            var query = "select * from " + tableName + " where " + columnName + "='" + valueCondition + "'";
+
+            try
+            {
+                SqlDataAdapter sqlData = new SqlDataAdapter(query, SqlConnection);
+                DataSet data = new DataSet();
+                sqlData.Fill(data);
+
+                if (data.Tables[0].Rows.Count > 0)
+                {
+                    string condition = "";
+                    var i = 0;
+                    foreach (KeyValuePair<string, string> d in valuePairs)
+                    {
+                        if (i == 0)
+                        {
+                            condition += d.Key + "= '" + d.Value + "'";
+                        }
+                        else
+                        {
+                            condition += "," + d.Key + "= '" + d.Value + "'";
+                        }
+                        i++;
+                    }
+
+                    var updateQuery = "update " + tableName + " set " + condition + " where " + columnName + "='" + valueCondition + "' ";
+                    SqlCommand command = new SqlCommand(updateQuery, SqlConnection);
+                    command.Dispose();
+                    return command.ExecuteNonQuery();
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            finally
+            {
+                SqlConnection.Close();
+            }
+            return -1;
+        }
         public void deleteQuery(string tableName, Dictionary<string,string> valuePairs)
         {
             SqlConnection.Open();

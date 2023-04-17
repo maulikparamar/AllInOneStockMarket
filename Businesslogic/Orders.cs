@@ -46,6 +46,41 @@ namespace AllInOneStockMarket.Businesslogic
             return new();
         }
 
+        public List<getOrderModel> getBrokerAllOrders(string brokerId)
+        {
+            try
+            {
+                SqlController sql = new SqlController();
+                SqlDataReader dataReader = sql.selectQuery(SqlDatabaseTable.orders, OrderDetailsColumnName.broker_id, brokerId);
+
+
+                List<getOrderModel> orders = new();
+                if (dataReader != null && dataReader.HasRows)
+                {
+                    PriceView priceView = new PriceView();
+                    while (dataReader.Read())
+                    {
+                        getOrderModel orderModel = new();
+                        orderModel.id = Convert.ToInt32(dataReader["id"].ToString());
+                        orderModel.clientId = dataReader["client_id"].ToString();
+                        orderModel.brokerModel = GetClienDetails(dataReader["broker_id"].ToString());
+                        orderModel.scripModel = priceView.getScriDetails(dataReader["scrip_id"].ToString());
+                        orderModel.qty = Convert.ToInt32(dataReader["qty"].ToString());
+                        orderModel.price = Convert.ToDouble(dataReader["price"].ToString());
+                        orderModel.status = dataReader["status"].ToString();
+                        orderModel.buyorsell = dataReader["buyorsell"].ToString();
+                        orders.Add(orderModel);
+                    }
+                    return orders;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            return new();
+        }
+
         private ClientDetails GetClienDetails(string clientId)
         {
             ClientDetails clientDetails = new();
@@ -104,6 +139,22 @@ namespace AllInOneStockMarket.Businesslogic
                 int result = sql.insertQuery(SqlDatabaseTable.orders, valuePairs);
                 return result;
             }catch(Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            return -1;
+        }
+        public int updateStatus(OrderStatus status,int id)
+        {
+            try
+            {
+                SqlController sql = new SqlController();
+                Dictionary<string, string> valuePairs = new();
+                valuePairs.Add(OrderDetailsColumnName.status, status.ToString());
+                int result = sql.updateQuery(SqlDatabaseTable.orders, valuePairs, OrderDetailsColumnName.id, id.ToString());
+                return result;
+            }
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
             }

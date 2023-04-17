@@ -178,7 +178,64 @@ namespace AllinOneStock.Businesslogic
             return new();
         }
 
+        public List<FullClientDetails> getFullClientDetails(userType type)
+        {
+            List<FullClientDetails> list = new();
+            try
+            {
+                SqlController controller = new SqlController();
+                Dictionary<string, string> valuePairs = new();
+                valuePairs.Add(ClientDetailsColumnName.client_type, ((int)type).ToString());
+                SqlDataReader dataReader = controller.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
+                if (dataReader != null && dataReader.HasRows)
+                {
+                    while (dataReader.Read())
+                    {
+                        FullClientDetails clientDetails = new();
+                        clientDetails.client_id = dataReader["clientId"].ToString();
+                        clientDetails.client_name = dataReader["clientName"].ToString();
+                        clientDetails.client_funds = Convert.ToInt64(dataReader["clientFund"].ToString());
+                        clientDetails.client_phoneno = Convert.ToInt64(dataReader["clientPhoneNo"].ToString());
+                        clientDetails.client_pan = dataReader["clientPan"].ToString();
+                        clientDetails.client_address = dataReader["clientAddress"].ToString();
+                        clientDetails.client_password = dataReader["clientPassword"].ToString();
+                        clientDetails.client_verification_code = Convert.ToInt32(dataReader["clientVerificationCode"].ToString());
+                        list.Add(clientDetails);
+                    }
+                    return list;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            return new();
+        }
 
+        public int createOrUpdateClient(FullClientDetails clientDetails)
+        {
+            try
+            {
+                SqlController sql = new SqlController();
+                Dictionary<string, string> valuePairs = new();
+                valuePairs.Add(ClientDetailsColumnName.client_id, clientDetails.client_id);
+                valuePairs.Add(ClientDetailsColumnName.client_name, clientDetails.client_name);
+                valuePairs.Add(ClientDetailsColumnName.client_Fund, clientDetails.client_funds.ToString());
+                valuePairs.Add(ClientDetailsColumnName.client_address, clientDetails.client_address);
+                valuePairs.Add(ClientDetailsColumnName.client_pan, clientDetails.client_pan);
+                valuePairs.Add(ClientDetailsColumnName.client_password, clientDetails.client_password);
+                valuePairs.Add(ClientDetailsColumnName.client_phoneNo, clientDetails.client_phoneno.ToString());
+                valuePairs.Add(ClientDetailsColumnName.client_verification_code, clientDetails.client_verification_code.ToString());
+                valuePairs.Add(ClientDetailsColumnName.client_type, ((int)userType.Client).ToString());
+                int result = sql.insertOrUpdateQuery(SqlDatabaseTable.user_details, valuePairs, ClientDetailsColumnName.client_id, clientDetails.client_id);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            return -1;
+        }
         private string GenerateToken(CredentialModel credential)
         {
             var securityKey =   new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Startup.Jwtkey));

@@ -1,0 +1,36 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login_view</title>
+</head>
+<body>
+    <div>
+        <div><button onclick="clientDetailshow()">Client Details</button></div>
+        <div><button onclick="ordersDetailshow()">Orders Details</button></div>
+    </div>
+    <script>
+
+        function findLocalStorege() {
+            if (localStorage.getItem("jwt") == null) {
+                window.location.href = "/AllInOneStock/LoginPage"
+            }
+        }
+
+        findLocalStorege();
+
+        function clientDetailshow() {
+            window.location.href = "/AllInOneStock/ClientsList"
+        }
+        function ordersDetailshow() {
+            window.location.href = "/AllInOneStock/OrdersList"
+        }
+    </script>
+</body>
+</html>

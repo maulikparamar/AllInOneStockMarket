@@ -1,5 +1,5 @@
 ﻿
-@*@{
+@{
     Layout = null;
 }
 
@@ -9,10 +9,137 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>Login_view</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div>
-            <button onclick="GetScript"></button>
+    <h2 class="text-center mt-3">Client Details</h2>
+    <div class="m-3 row mt-4">
+
+        <div class="pr-2 col">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th scope="col">Client Id</th>
+                        <th>Client Name</th>
+                        <th>Client Funds</th>
+                        <th>Client Phoneno</th>
+                        <th>Client Pan</th>
+                        <th>Client Address</th>
+                        <th>Client Password</th>
+                        <th>Client Verification Code</th>
+                    </tr>
+                </thead>
+                <tbody id="clientDetailsBody">
+                </tbody>
+            </table>
+        </div>
+        <div class="pl-2 col">
+            <div>
+                <form id="form1" class="my-auto" style="height: 50%;" onsubmit="return false">
+                    <label for="userId">Enter Client Id</label>
+                    <input type="text" class="form-control mb-4" id="client_id" name="client_id" value="" />
+                    <label for="userId">Enter Client Name</label>
+                    <input type="text" class="form-control mb-4" id="clientname" name="clientname" value="" />
+                    <label for="userId">Enter Client Funds</label>
+                    <input type="number" class="form-control mb-4" id="clientfunds" name="clientfunds" value="" />
+                    <label for="userId">Enter Client Phoneno</label>
+                    <input type="number" class="form-control mb-4" id="clientphoneno" name="clientphoneno" value="" />
+                    <label for="userId">Enter Client Pan</label>
+                    <input type="text" class="form-control mb-4" id="clientpan" name="clientpan" value="" />
+                    <label for="userId">Enter Client Address</label>
+                    <input type="text" class="form-control mb-4" id="clientaddress" name="clientaddress" value="" />
+                    <label for="userId">Enter Client Password</label>
+                    <input type="text" class="form-control mb-4" id="clientpassword" name="clientpassword" value="" />
+                    <label for="userId">Enter Client Verification Code</label>
+                    <input type="number" class="form-control mb-4" id="clientverificationcode" name="clientverificationcode" value="" />
+                    <button class="btn btn-primary" style="width: 100%;" onclick="submitclick()">Submit</button>
+                </form>
+                <h3 id="errormsg" class="text-danger mt-4 text-center"></h3>
+            </div>
+        </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+    <script>
+        function findAuthentication() {
+            return localStorage.getItem("jwt")
+        }
+        function submitclick() {
+            var sendData = {
+                client_id: document.getElementById('client_id').value,
+                client_name: document.getElementById('clientname').value,
+                client_funds: document.getElementById('clientfunds').value,
+                client_phoneno: document.getElementById('clientphoneno').value,
+                client_pan: document.getElementById('clientpan').value,
+                client_address: document.getElementById('clientaddress').value,
+                client_password: document.getElementById('clientpassword').value,
+                client_verification_code: document.getElementById('clientverificationcode').value
+            }
+            $.ajax({
+                type: "post",
+                url: "UpdateClient",
+                headers: { "Authorization": "Bearer " + findAuthentication()+"" },
+                dataType: 'text',
+                contentType: "application/json",
+                //contentType: false,    //remove this...
+                processData: false,
+                data: JSON.stringify(sendData),
+                success: function (response) {
+                    //   alert("success");
+                    console.log(response);
+                    getclientDetails()
+                },
+                error: function (response) {
+                    console.log(response.responseText);
+                    document.getElementById('errormsg').innerHTML = response.responseText
+                }
+            });
+        }
+
+        function fillAllDetails(element) {
+            console.log(element);
+            document.getElementById('client_id').value = element.client_id;
+            document.getElementById('clientname').value = element.client_name;
+            document.getElementById('clientfunds').value = element.client_funds;
+            document.getElementById('clientphoneno').value = element.client_phoneno;
+            document.getElementById('clientpan').value = element.client_pan;
+            document.getElementById('clientaddress').value = element.client_address;
+
+            document.getElementById('clientpassword').value = element.client_password;
+            document.getElementById('clientverificationcode').value = element.client_verification_code;
+        }
+
+        function getclientDetails() {
+            $.ajax({
+                type: "post",
+                url: "GetAllClient",
+                headers: { "Authorization": "Bearer " + findAuthentication() + "" },
+                dataType: 'text',
+                contentType: "application/json",
+                //contentType: false,    //remove this...
+                processData: false,
+                // data: JSON.stringify(authentication),
+                success: function (response) {
+                    //   alert("success");
+                    console.log(response);
+                    var data = JSON.parse(response);
+                    var row = "";
+                    for (let i = 0; i < data.length; i++) {
+                        const element = data[i];
+                        row += "<tr> <td><button onclick='fillAllDetails(" + JSON.stringify(element) + ");' class='btn btn-primary'>Add</button></td> <td>" + element.client_id + "</td>" + "<td>" + element.client_name + "</td>" + "<td>" + element.client_funds + "</td>" + "<td>" + element.client_phoneno + "</td>" + "<td>" + element.client_pan + "</td>" + "<td>" + element.client_address + "</td>" + "<td>" + element.client_password + "</td>" + "<td>" + element.client_verification_code + "</td></tr>"
+                    }
+                    $('#clientDetailsBody').html(row);
+                },
+                error: function (response) {
+                    console.log(response.responseText);
+                    document.getElementById('errormsg').innerHTML = response.responseText
+                }
+            });
+        }
+        getclientDetails()
+    </script>
 </body>
-</html>*@
+</html>

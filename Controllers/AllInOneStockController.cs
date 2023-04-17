@@ -257,15 +257,109 @@ namespace AllinOneStock.Controllers
         //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
 
         [HttpPost("GetAllClient")]
-        public ActionResult<List<ClientDetails>> postAllClientList()
+        public ActionResult<List<FullClientDetails>> postAllClientList()
         {
             try
             {
                 string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+               // string type = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).SingleOrDefault();
+
+               // if (name == "" && type == userType.Admin.ToString()) return Unauthorized();
+
+                List<FullClientDetails> result = authentication.getFullClientDetails(userType.Client);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost("UpdateClient")]
+        public ActionResult postUpdateClient(FullClientDetails clientDetails)
+        {
+            try
+            {
+                string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+               // string type = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).SingleOrDefault();
+                //&& type == userType.Admin.ToString()
+                if (name == "" ) return Unauthorized();
+
+                int result = authentication.createOrUpdateClient(clientDetails);
+                
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost("GetAllOrdersDetails")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        public ActionResult<List<getOrderModel>> postAllOrdersDetails()
+        {
+            try
+            {
+                string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                // string type = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).SingleOrDefault();
+
+                // if (name == "" && type == userType.Admin.ToString()) return Unauthorized();
+
+                List<getOrderModel> result = orders.getBrokerAllOrders(name);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost("UpdateOrder")]
+        public ActionResult postUpdateOrder(orderModelRequest order)
+        {
+            try
+            {
+                string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                // string type = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).SingleOrDefault();
+                //&& type == userType.Admin.ToString()
                 if (name == "") return Unauthorized();
 
-                List<ClientDetails> result = authentication.getClientDetails(userType.Client);
-                return result;
+                OrderStatus o;
+
+                if(!Enum.TryParse(order.status, out o))
+                {
+                    return NoContent();
+                }
+
+                int result = orders.updateStatus(o, order.id);
+                
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+
+        [HttpPost("DeleteOrders")]
+        public ActionResult postDeleteOrders(deleteOrderModelRequest modelRequest)
+        {
+            try
+            {
+                string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                // string type = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).SingleOrDefault();
+                //&& type == userType.Admin.ToString()
+                if (name == "") return Unauthorized();
+
+                 orders.deleteOrder(modelRequest.client, modelRequest.id);
+
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -280,15 +374,15 @@ namespace AllinOneStock.Controllers
             return View("~/Views/Login_view.cshtml");
         }
 
-        [HttpGet("DashBoard")]
-        public ActionResult getDashBoard()
+        [HttpGet("HomePage")]
+        public ActionResult getHomePage()
         {
-            return View("~/Views/DashBoard.cshtml");
+            return View("~/Views/HomePage.cshtml");
         }
-        [HttpGet("ClientList")]
+        [HttpGet("ClientsList")]
         public ActionResult getClientList()
         {
-            return View("~/Views/ClientList_view.cshtml");
+            return View("~/Views/ClientsList_view.cshtml");
         }
         [HttpGet("OrdersList")]
         public ActionResult getOrdersList()

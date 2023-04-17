@@ -15,6 +15,17 @@ namespace AllinOneStock.Models
         public string buyorsell { get; set; }
     }
 
+    public class orderModelRequest
+    {
+        public int id { get; set; }
+        public string status { get; set; }
+    }
+
+    public class deleteOrderModelRequest
+    {
+        public int id { get; set; }
+        public string client { get; set; }
+    }
     public class getOrderModel
     {
          public int id { get; set; }

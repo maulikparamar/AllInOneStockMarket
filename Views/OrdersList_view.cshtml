@@ -1,5 +1,5 @@
 ﻿
-@*@{
+@{
     Layout = null;
 }
 
@@ -8,11 +8,147 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>Login_view</title>
+    <title>Orders Details</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+
 </head>
 <body>
-    <div>
-            <button onclick="GetScript"></button>
+    <h2 class="text-center mt-3">Orders Details</h2>
+    <div class="m-3 row mt-4">
+
+        <div class="pr-2 col">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th scope="col">Client Id</th>
+                        <th>Scrip Name</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Buy or Sell</th>
+                    </tr>
+                </thead>
+                <tbody id="clientDetailsBody">
+                </tbody>
+            </table>
+        </div>
+        <div class="pl-2 col">
+            <form id="form1" class="my-auto" style="height: 50%;" onsubmit="return false">
+                <input hidden id="orderid" />
+                <label for="userId">Client Id</label>
+                <input type="text" class="form-control mb-4" id="client_id" name="client_id" value="" />
+                <label for="userId">Scrip Name</label>
+                <input type="text" class="form-control mb-4" id="scripName" name="scripName" value="" />
+                <label for="userId">Status Change</label>
+                <select class="form-select" id="status" aria-label="Default select example">
+                    <option selected>Select Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Accept">Accept</option>
+                </select>
+                <button class="btn btn-primary" style="width: 100%;" onclick="submitclick()">Submit</button>
+            </form>
+            <h3 id="errormsg" class="text-danger mt-4 text-center"></h3>
+        </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+    <script>
+        function findAuthentication() {
+            return localStorage.getItem("jwt")
+        }
+        function deleteOrder(element) {
+            var data = {
+                client: element.clientId,
+                id: element.id
+            }
+            $.ajax({
+                type: "post",
+                url: "DeleteOrders",
+                headers: { "Authorization": "Bearer " + findAuthentication() + "" },
+                dataType: 'text',
+                contentType: "application/json",
+                //contentType: false,    //remove this...
+                processData: false,
+                data: JSON.stringify(data),
+                success: function (response) {
+                    //   alert("success");
+                    console.log(response);
+                    getOrderDetails()
+                },
+                error: function (response) {
+                    console.log(response.responseText);
+                    document.getElementById('errormsg').innerHTML = response.responseText
+                }
+            });
+        }
+
+        function submitclick() {
+            var sendData = {
+                status: document.getElementById('status').value,
+                id: document.getElementById('orderid').value
+            }
+            $.ajax({
+                type: "post",
+                url: "UpdateOrder",
+                headers: { "Authorization": "Bearer " + findAuthentication() + "" },
+                dataType: 'text',
+                contentType: "application/json",
+                //contentType: false,    //remove this...
+                processData: false,
+                data: JSON.stringify(sendData),
+                success: function (response) {
+                    //   alert("success");
+                    console.log(response);
+                    getclientDetails()
+                },
+                error: function (response) {
+                    console.log(response.responseText);
+                    document.getElementById('errormsg').innerHTML = response.responseText
+                }
+            });
+        }
+
+        function fillAllDetails(element) {
+            console.log(element);
+            document.getElementById('orderid').value = element.id;
+            document.getElementById('client_id').value = element.clientId;
+            document.getElementById('scripName').value = element.scripModel.scripName;
+            document.getElementById('status').value = element.status;
+
+        }
+
+        function getOrderDetails() {
+            $.ajax({
+                type: "post",
+                url: "GetAllOrdersDetails",
+                headers: { "Authorization": "Bearer " + findAuthentication() + "" },
+                dataType: 'text',
+                contentType: "application/json",
+                //contentType: false,    //remove this...
+                processData: false,
+                // data: JSON.stringify(authentication),
+                success: function (response) {
+                    //   alert("success");
+                    console.log(response);
+                    var data = JSON.parse(response);
+                    var row = "";
+                    for (let i = 0; i < data.length; i++) {
+                        const element = data[i];
+                        row += "<tr> <td><button onclick='fillAllDetails(" + JSON.stringify(element) + ");' class='btn btn-primary'>Add</button></td> <td><button onclick='deleteOrder(" + JSON.stringify(element) + ")' class='btn btn-danger'>Delete</button></td> <td>" + element.clientId + "</td>" + "<td>" + element.scripModel.scripName + "</td>" + "<td>" + element.qty + "</td>" + "<td>" + element.price + "</td>" + "<td>" + element.status + "</td>" + "<td>" + element.buyorsell + "</td></tr>"
+                    }
+                    $('#clientDetailsBody').html(row);
+                },
+                error: function (response) {
+                    console.log(response.responseText);
+                    document.getElementById('errormsg').innerHTML = response.responseText
+                }
+            });
+        }
+        getOrderDetails()
+    </script>
 </body>
-</html>*@
+</html>
