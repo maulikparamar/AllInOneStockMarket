@@ -137,6 +137,43 @@ namespace AllinOneStock.Businesslogic
             //}
             return null;
         }
+        
+        public SqlDataReader selectSearchQuery(List<string>? fileds, string tablename,string columnName,string value)
+        {
+            if (SqlConnection.State == ConnectionState.Closed)
+            {
+                SqlConnection.Open();
+            }
+            SqlDataReader dataReader;
+            string filed = "";
+            if (fileds != null)
+            {
+                string.Join(",", fileds);
+            }
+            else
+            {
+                filed = "*";
+            }
+            string query = "SELECT "+ filed + " FROM "+ tablename + " where "+ columnName + " Like '%"+value+"%'";
+            try
+            {
+                SqlCommand command = new SqlCommand(query, SqlConnection);
+                dataReader = command.ExecuteReader(CommandBehavior.CloseConnection);
+                // command.Dispose();
+                return dataReader;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            //finally
+            //{
+
+            //  //  SqlConnection.Close();
+            //}
+            return null;
+        }
+
         public Int32 insertQuery(string tableName, Dictionary<string, string> valuePairs)
         {
             SqlConnection.Open();

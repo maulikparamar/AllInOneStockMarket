@@ -124,6 +124,33 @@ namespace AllInOneStockMarket.Businesslogic
             return new();
         }
 
+        public List<ItemScrip> getSearchScrip(string scripName)
+        {
+            List<ItemScrip> items = new();
+            try
+            {
+                SqlController controller = new SqlController();
+                //string exchange = new String(tokenId.Where(Char.IsLetter).ToArray());
+                //string token = new String(tokenId.Where(Char.IsDigit).ToArray());
+                //Dictionary<string, string> valuePairs = new();
+                //valuePairs.Add(ScripDetailsColumnName.token, token);
+                SqlDataReader dataReader = controller.selectSearchQuery(null, SqlDatabaseTable.scrip_details, ScripDetailsColumnName.scrip_name, scripName);
+              
+                if (dataReader != null && dataReader.HasRows)
+                {
+                    while (dataReader.Read())
+                    {
+                        items.Add(new ItemScrip(dataReader));
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            return items;
+        }
+
         private ItemScrip getItemScrip(string tokeId)
         {
             return null;

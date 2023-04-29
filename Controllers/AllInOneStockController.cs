@@ -127,9 +127,6 @@ namespace AllinOneStock.Controllers
             }
         }
 
-        
-
-
         [HttpPost("GetAllPriceView")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult<List<PriceViewsList>> postAllPriceView(string clientId)
@@ -193,6 +190,22 @@ namespace AllinOneStock.Controllers
             try
             {
                 ScripModel item = priceView.getScriDetails(tokenId);
+                return Ok(item);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost("SearchScripDetails")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        public ActionResult getSearchScripDetails(string scripName)
+        {
+            try
+            {
+                List<ItemScrip> item = priceView.getSearchScrip(scripName);
                 return Ok(item);
             }
             catch (Exception ex)
