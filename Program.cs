@@ -21,6 +21,7 @@ namespace AllInOneStockMarket
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+          
                 });
     }
 }
