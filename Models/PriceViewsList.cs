@@ -24,12 +24,15 @@ namespace AllinOneStock.Models
         public ItemScrip() { }
         public ItemScrip(SqlDataReader dataReader)
         {
+            id = Convert.ToInt64(dataReader["id"].ToString());
             ScripName = dataReader["ScripName"].ToString();
             Exchange = (Exchange)Convert.ToInt16(dataReader["Exchange"].ToString());
             Close = Convert.ToDouble(dataReader["scrip_close"].ToString());
             Ltp = Convert.ToDouble(dataReader["scrip_ltp"].ToString()); 
             Token = Convert.ToInt16(dataReader["Token"].ToString());
         }
+
+        public Int64 id { get; set; }
         public string ScripName { get; set; }
 
         public Int16 Token { get; set; }

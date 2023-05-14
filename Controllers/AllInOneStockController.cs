@@ -205,7 +205,7 @@ namespace AllinOneStock.Controllers
         {
             try
             {
-                List<ItemScrip> item = priceView.getSearchScrip(scripName);
+                List<ItemScrip> item = priceView.getSearchScrip(scripName).Take(50).ToList();
                 return Ok(item);
             }
             catch (Exception ex)
