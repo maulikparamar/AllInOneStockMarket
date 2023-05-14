@@ -212,6 +212,40 @@ namespace AllinOneStock.Businesslogic
             return new();
         }
 
+        public FullClientDetails getFullClientDetails(string clientId)
+        {
+            FullClientDetails clientDetails = new();
+            try
+            {
+                SqlController controller = new SqlController();
+                Dictionary<string, string> valuePairs = new();
+                valuePairs.Add(ClientDetailsColumnName.client_id, clientId);
+                SqlDataReader dataReader = controller.selectConditionQuery(null, SqlDatabaseTable.user_details, valuePairs);
+                if (dataReader != null && dataReader.HasRows)
+                {
+                    while (dataReader.Read())
+                    {
+                     
+                        clientDetails.client_id = dataReader["clientId"].ToString();
+                        clientDetails.client_name = dataReader["clientName"].ToString();
+                        clientDetails.client_funds = Convert.ToInt64(dataReader["clientFund"].ToString());
+                        clientDetails.client_phoneno = Convert.ToInt64(dataReader["clientPhoneNo"].ToString());
+                        clientDetails.client_pan = dataReader["clientPan"].ToString();
+                        clientDetails.client_address = dataReader["clientAddress"].ToString();
+                        clientDetails.client_password = dataReader["clientPassword"].ToString();
+                        clientDetails.client_verification_code = Convert.ToInt32(dataReader["clientVerificationCode"].ToString());
+                        
+                    }
+                    return clientDetails;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            return new();
+        }
+
         public int createOrUpdateClient(FullClientDetails clientDetails)
         {
             try
@@ -228,6 +262,25 @@ namespace AllinOneStock.Businesslogic
                 valuePairs.Add(ClientDetailsColumnName.client_verification_code, clientDetails.client_verification_code.ToString());
                 valuePairs.Add(ClientDetailsColumnName.client_type, ((int)userType.Client).ToString());
                 int result = sql.insertOrUpdateQuery(SqlDatabaseTable.user_details, valuePairs, ClientDetailsColumnName.client_id, clientDetails.client_id);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            return -1;
+        }
+
+        public int createPriceViewNewUser(FullClientDetails clientDetails)
+        {
+            try
+            {
+                SqlController sql = new SqlController();
+                Dictionary<string, string> valuePairs = new();
+                valuePairs.Add(PriceViewDetailsColumnName.client_id, clientDetails.client_id);
+                valuePairs.Add(PriceViewDetailsColumnName.priceViewName, "MyPriceViewList");
+         
+                int result = sql.insertOrUpdateQuery(SqlDatabaseTable.priceView, valuePairs, PriceViewDetailsColumnName.client_id, clientDetails.client_id);
                 return result;
             }
             catch (Exception ex)

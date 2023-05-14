@@ -262,6 +262,24 @@ namespace AllinOneStock.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
+        [HttpPost("GetClientDetails")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        public ActionResult getClientDetails(string clientId)
+        {
+            try
+            {
+                string name = HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                if (name != clientId) return Unauthorized();
+                var i = authentication.getFullClientDetails(clientId);
+                return Ok(i);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
         #endregion
 
 
@@ -300,8 +318,8 @@ namespace AllinOneStock.Controllers
                 if (name == "" ) return Unauthorized();
 
                 int result = authentication.createOrUpdateClient(clientDetails);
-                
-                return Ok();
+                result = authentication.createPriceViewNewUser(clientDetails);
+                return Ok(result);
             }
             catch (Exception ex)
             {
